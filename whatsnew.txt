@@ -2,3 +2,5 @@ v58
 - cursor is shown after zeroing cells
 - improved performance when zeroing cells
 - added About with version number
+v58.1
+- bug fixes when selecting non '0' cells
