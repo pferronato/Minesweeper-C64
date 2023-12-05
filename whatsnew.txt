@@ -1,4 +1,4 @@
 v58
-- cursor is shown after emptying zeros cells
-- improve performance when zeroing cells
+- cursor is shown after zeroing cells
+- improved performance when zeroing cells
 - added About with version number
