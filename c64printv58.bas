@@ -1,0 +1,340 @@
+0 ;*** TO DO ***
+1 ;* BUGS
+2 ;REMOVE MANDATORY FLAGS FOR BOMBS
+3 ;
+4 ;* FEATURES
+5 ;ADD SOUND
+6 ;SPEED UP ARRAY INDEXING
+7 ;ADD TIME AS INTERRUPT
+8 ;ADD MOUSE CONTROL
+9 ;SPEED UP ADDRSS * CALCULATION
+10 REM ================================
+20 REM           MINESC64
+30 REM ================================
+40 DEBUG
+42 CLS:CLR:TBOMBS=16
+43 TAG RESTART
+45 RANDOM:TAG BLK=0,WHT=1,RED=2,LTGN=13,GRY=12,DGRY=11,BLU=6,LTGY=15
+50 TAG MAXSIDE=20:TAG ISIDE=MAXSIDE-1:TAG CUR=102:DECIMAL TI,F0%,DD
+60 DIM FIELD(399):DIM ZLX(399):DIM ZLY(399):DIM VIS(399)
+61 TAG VISIBLE=1:TAG MARK=88:LET CL0=LTGR:LET LFT=400
+70 TAG BOMB=214,HIDDEN=230,EMPTY=255,SPACE=32:MARKED=0
+79 ;
+80 SHOWMAP
+85 INITFLD
+87 GENBOMBS:SCORES
+90 MCALC
+93 ;SHALL:KEYPRESS
+95 INITCRS
+110 MENU
+120 RETURN
+150 ;
+160 PROC INITFLD
+165 TAG SVIS=VIS():TAG SF=FIELD():FSIZ=400*2:EF=FSIZ+SF-1:EVIS=FSIZ+SVIS-1
+
+174 FILL SF,EF,HIDDEN
+177 FILL SVIS,EVIS,0
+179 POKE 53280,0;SIDCLR:VOL 15:VOICE 1
+270 RETURN
+299 ;
+300 PROC MOD:PASS N,D
+320 DD=N/D:Y%=WHOLE(DD):W=Y%*D
+330 SUB X%=N-W
+340 RETURN
+399 ;
+400 PROC CLICK
+420 POKE 54296,15
+430 POKE 54296,0
+460 RETURN
+580 ;
+590 PROC COORD:PASS AX,BX
+600 ;I=MAXSIDE*BX:ADD I=I+AX
+605 ADD I=BX+BX:DUBL I:ADD I=I+BX:DUBL I:DUBL I:ADD I=I+AX
+610 RETURN
+611 ;
+620 PROC SHCUR
+630 PT=R%*40+C%:PT=PT+1024:POKE P,CUR
+640 CT=PT+55296:POKE CT,BLK
+650 RETURN
+710 ;
+720 PROC CKCELL:PASS AA,BB:LET OOB=0
+722 COMP ISIDE,AA:[BCC 738]
+724 COMP ISIDE,BB:[BCC 738]
+730 COMP AA,0:[BCC 738]
+731 COMP BB,0:[BCC 738]
+732 GOTO 740
+738 LET<OOB=1
+740 RETURN
+741 ;
+745 PROC DISPP:PASS I,CH
+746 MOD.I,20:Y%=Y%*40
+748 ADD P=Y%+1108:ADD P=P+X%
+750 POKE P,CH
+755 RETURN
+770 ;
+780 PROC DISP:LOCAL:PASS X,Y,P
+782 ADD TY=Y+Y:DUBLTY:ADDTY=TY+Y:DUBLTY:DUBLTY:DUBLTY;   TY=40*Y
+784 ADD Y0=TY+80
+790 ADD XY=Y0+X:ADD XY=XY+1028
+805 POKE XY,P
+810 GLOBAL:RETURN
+820 ;
+830 PROC ZEROS:PASS A,B
+835 DIMZ(399):COORD.A,B:Z(0)=I:LET ZLS=1:LET C=O
+860 TAG ZLOOP
+870 J=Z(C)
+880 COMPJ,380:[BCS 890]:ADD X=J+1
+885 ZEROED
+890 COMPJ,1:[BCC 900]:SUB X=J-1
+895 ZEROED
+900 ADD X=J+20:COMPX,400:[BCS 910]
+905 ZEROED
+910 COMPJ,20:[BCC 930]:SUB X=J-20
+915 ZEROED
+930 ADD X=J+21:COMPX,400:[BCS 940]
+935 ZEROED
+940 COMPJ,21:[BCC 950]:SUB X=J-21
+945 ZEROED
+950 ADD X=J+19:COMPX,400:[BCS 960]
+955 ZEROED
+960 COMPJ,19:[BCC 970]:SUB X=J-19
+965 ZEROED
+970 INC C:COMP C,ZLS:[BCC ZLOOP]
+977 RETURN
+979 ;
+980 PROC ZEROED;LOC23,30;:PRINTX:KEYPRESS
+995 VI=VIS(X):COMP VI,VISIBLE:[BEQ 1040]
+997 IF FIELD(X)=BOMB THEN 1040
+1010 IF FIELD(X)=0 THEN Z(ZLS)=X:INC ZLS
+1025 THEN DISPP.X,SPACE
+1026 ELSE P=FIELD(X)+48:DISPP.X,P
+1027 DEC LFT:VIS(X)=VISIBLE
+1030 COMP VI,MARK:[BNE 1040]
+1031 DEC MARKED
+1040 RETURN
+1060 ;
+1070 PROC EXIT
+1080 POKE 646,LTGY:CLS:LOC 0,0;"MINES 64 - BYE BYE":POKE 646,LTGN:END
+1090 ;
+1100 PROC PROG:PASS C,M
+1105 LET 646=WHT
+1110 LOC 6,23;MSG$;" ";C;" /";M;"  "
+1120 COMP C,M:[BNE 1130]
+1125 LOC 6,23 "                   "
+1130 LET 646=LTGN:RETURN
+1139 ;
+1200 PROC MENU
+1203 SCORES
+1205 LET SX=25:P0=40*20+10+1024
+1210 CHR$(151):POKE 646,WHT
+1220 LOC SX,06;"[RET] OPEN"
+1230 LOC SX,08;"[SPC] MARK"
+1235 LOC SX,12;"[Q]   QUIT"
+1240 LOC SX,14;"[R]   RESTART"
+1245 LOC SX,10;"[B]   #BOMBS"
+1250 LOC SX,16;"[A]   ABOUT"
+1255 LOC SX,18;"USE ARROWS KEYS";CHR$(153)
+1260 GETK$:IF K$="" THEN 1260
+1270 IF K$="S" THEN MSHALL
+1290 IF K$="R" THEN MREST
+1291 IF K$="B" THEN MCONF
+1292 IF K$="A" THEN MABOUT
+1293 IF K$="Q" THEN MEXIT
+1294 CURS:SCORES:CKEND
+1295 GOTO 1260
+1299 ;
+1800 TAG FAILED
+1805 SCORES:SVSCR
+1810 MSG$="BOOOM!":WIND
+1830 KEYPRESS
+1835 RSTSCR
+1838 POKE 646,LTGN:RESTART
+1908 ;
+1910 PROC SCORES
+1915 POKE 646,BLK
+1930 LOC 4,0;"MARKED:    LEFT:     BOMBS:   "
+1940 POKE 646,LTGY: LOC11,0;MARKED:LOC20,0;LFT;LOC31,0;TBOMBS
+1950 POKE646,LTGN:RETURN
+1999 ;
+2000 PROC SHOWMAP
+2001 LET L=19:LET X=2:LET Y=4:POKE 646,BLU
+2002 LOC3,1;".";DUP$(".",20);"."
+2003 LOC3,22;".";DUP$(".",20);"."
+2004 FORI=2TO21:LOC3,I;".":NEXT
+2005 FORI=2TO21:LOC24,I;".":NEXT:POKE 646,LTGR
+2010 FORI=0TOISIDE
+2020 ADD X1=X+I
+2030 ADD S=X1+X1:DUBL S:ADD S=S+X1
+2040 DUBL S:DUBL S:DUBL S:SS=S+1024+Y
+2045 COLS=S+55296+Y
+2060 ADD EE=SS+L:ADD CLE=COLS+L
+2062 FILLCOLS,CLE,LTGN
+2070 FILL SS,EE,HIDDEN
+2080 NEXT
+2090 RETURN
+2099 ;
+2100 PROC MREST
+2110 CONFIRM
+2130 IFM$="Y" THEN RESTART
+2150 RETURN
+2155 ;
+2160 PROC CONFIRM
+2170 SVSCR
+2172 MSG$= "SURE? (Y/N)":WIND
+2175 GETM$:IFM$=""THEN2175
+2177 RSTSCR
+2185 POKE 646,LTGN
+2187 RETURN
+2199 ;
+2200 PROC MEXIT
+2210 CONFIRM
+2230 IFM$="Y" THEN EXIT
+2250 RETURN
+2259 ;
+2300 PROC CKEND
+2310 IF MARKED=TBOMBS AND LFT=MARKED THEN WIN
+2315 ELSE RETURN
+2320 TAG WIN
+2330 SVSCR:MSG$=" *WIN* ":WIND
+2340 KEYPRESS
+2345 RSTSCR:RESTART
+2350 RETURN
+2499 ;
+2500 PROC CURS
+2505 LET MV=0:CLICK
+2510 IF K$="" THEN DEC R%:INC MV
+2520 IF K$="" then inc r%:inc mv
+2530 if k$="." then inc c%:inc mv
+2540 if k$="." then dec c%:inc mv
+2543 r$=chr$(13):if k$=r$ then ocell
+2545 s$=chr$(32):if k$=s$ then mcell
+2546 comp mv,0:[beq 2620]
+2550 if r%=65535 then let r%=19
+2560 if c%=65535 then let c%=19
+2570 if r%>19 then let r%=0
+2580 if c%>19 then let c%=0
+2585 add r1=r%+2:add c1=c%+4
+2590 l=40*r1+c1+1024:pc=40*r1+c1+55296
+2600 poke p0,st:st=peek(l):poke pc0,cl0
+2610 poke l,cur:let p0=l:cl0=peek(pc):poke pc,0:let pc0=pc
+2620 return
+2699 ;
+2700 proc initcrs:c%=0:r%=0
+2710 c1=4:r1=2:pc=40*r1+c1+55296:l=40*r1+c1+1024
+2715 poke l,hidden:poke pc,blk:cl0=ltgn:st=hidden:p0=l:pc0=pc
+2720 return
+2799 ;
+2800 proc ocell
+2805 coord.c%,r%
+2807 if vis(i)=visible then return
+2808 if vis(i)=mark then return
+2810 if field(i)=0 then zeros.c%,r%:goto 2840
+2820 if field(i)=bomb then failed
+2825 if vis(i)=mark then return
+2830 px=field(i)+48:disp.c%,r%,px:dec lft:vis(i)=visible:let st=px
+2840 disp.c%,r%,cur:st=space:return
+2999 ;
+3000 proc mcell
+3010 coord.c%,r%:if vis(i)=visible then return
+3015 if vis(i)=mark then dec marked:let st=hidden:vis(i)=0:let cl0=ltgn:re
+turn
+3020 disp.c%,r%,mark:inc marked:let st=mark:vis(i)=mark:let cl0=red
+3998 return
+3999 ;
+4000 proc genbombs
+4010 decimal v:msg$="bombs":let p=399
+4020 fori=0to399:vis(i)=i:next
+4025 fori=1totbombs
+4030 v=rnd*p:r=int(v):w=vis(r)
+4035 field(w)=bomb:vis(r)=vis(p):vis(p)=w:dec p
+4060 next
+4065 fill svis,evis,0
+4070 return
+4499 ;
+4500 proc shall
+4510 for r=0to19
+4520 for c=0to19
+4530 coord.c,r:if field(i)=bomb then disp.c,r,bomb:goto 4540
+4538 p=field(i)+48:disp.c,r,p
+4540 next
+4543 prog.r,19
+4545 next
+4550 return
+4999 ;
+5000 proc mcalc
+5010 let<nb=0:msg$="init"
+5020 fori=0to399
+5025 fi=field(i)
+5030 comp fi,bomb:[beq 5130]
+5040 add s=i+01:comps,400:[bcs 5050]
+5045 if field(s)=bomb then inc nb
+5050 sub s=i-01:comps,0:[bcc 5060]
+5055 if field(s)=bomb then inc nb
+5060 add s=i+20:comps,400:[bcs 5070]
+5065 if field(s)=bomb then inc nb
+5070 sub s=i-20:comps,0:[bcc 0]
+5075 if field(s)=bomb then  inc nb
+5080 add s=i+21:comps,400:[bcs 5090]
+5085 if field(s)=bomb then inc nb
+5090 add s=i+19:comps,400:[bcs 5100]
+5095 if field(s)=bomb then inc nb
+5100 sub s=i-19:comps,0:[bcc 5105]
+5105 if field(s)=bomb then inc nb
+5110 sub s=i-21:comps,0:[bcc 5120]
+5115 if field(s)=bomb then inc nb
+5120 field(i)=nb:let nb=0:prog.i,399
+5130 next
+5140 return
+5999 ;
+6000 proc wind
+6005 ln=len(msg$):sub ln=17-ln:half ln
+6020 poke646,wht:loc11,11;"WDDDDDDDDDDDDDDDW"
+6030 loc11,12;"B";dup$(" ",15);"B"
+6040 poke646,wht:loc11,13;"WDDDDDDDDDDDDDDDW"
+6045 poke646,red:loc11,12;spc(ln);msg$
+6050 return
+6199 ;
+6200 proc svscr
+6210 copy 1024,2024,40960
+6215 copy 55296,56295,41961
+6220 return
+6249 ;
+6250 proc rstscr
+6260 copy 40960,41960,1024
+6265 copy 41961,42961,55296
+6270 return
+6399 ;
+6400 proc mconf
+6410 svscr:poke646,wht:poke19,65:rt$=chr$(13):c=0
+6415 loc 12,11;"WDDDDDDDDDDDDDDDDW"
+6420 loc 12,13;"WDDDDDDDDDDDDDDDDW"
+6430 loc 12,12;"B                G"
+6435 loc 17,12;"bombs="
+6437 loc 23,12;
+6440 getk$:if k$="" then 6440
+6443 v=val(k$)
+6445 ifc=0then ifv>0andv<5then d1=v:incc:loc 23,12;:printk$:goto6440
+6450 ifc=1then ifv>=0andv<=9then d2=v:incc:loc 24,12;:printk$:goto6440
+6452 if k$=rt$ then 6455
+6453 goto 6440
+6455 if c=1 then tbombs=d1
+6457 if c=2 then tbombs=d1*10+d2
+6460 rstscr:scores:poke646,ltgn
+6470 restart
+6480 return
+6599 ;
+6600 proc mabout
+6610 msg$="D    v58    C"
+6620 svscr
+6630 wind
+6640 getk$:ifk$=""then 6640
+6650 rstscr:k$=""
+6660 return
+6699 ]
+6700 proc mshall
+6710 svscr
+6720 shall
+6730 keypress
+6740 rstscr
+6750 return
+
