@@ -6,3 +6,6 @@ v58.1
 - bug fixes when selecting non '0' cells
 v58.2
 - improved performnance in zeroing cells
+v58.3
+- added colors to numbers
+- more speed in zeroing
