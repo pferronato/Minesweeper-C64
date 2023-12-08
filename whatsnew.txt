@@ -13,3 +13,5 @@ v58.4
 - fix bug on restart
 - removed LEFT and MARKED from the scores lines
 - it's not necessary to mark all the bombs to win, if the left cells are equal to the number of bombs the game ends
+v58.5
+- shortly documented procedures
