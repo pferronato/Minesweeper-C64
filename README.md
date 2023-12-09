@@ -1,4 +1,4 @@
 # Minesweeper-C64
 The minesweeper game developed for the C64 using VisionBasic language https://visionbasic.net/
 
-The best way to see the code and run the game correctly is to use the d64 image file
+In the d64 image file there is the executable, no need to have VisionBasic installed, and the source code.
