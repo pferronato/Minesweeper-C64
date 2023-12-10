@@ -17,3 +17,4 @@ v58.5
 - added short documentation of the procedures
 v58.6
 - improvement in speed, thanks to Mr VisionBasic suggestions and code snippet
+- changed colors and directive
