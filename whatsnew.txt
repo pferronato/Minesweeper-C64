@@ -15,3 +15,5 @@ v58.4
 - it's not necessary to mark all the bombs to win, if the left cells are equal to the number of bombs the game ends
 v58.5
 - added short documentation of the procedures
+v58.6
+- improvement in speed, thanks to Mr VisionBasic suggestions and code snippet
